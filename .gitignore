@@ -1,0 +1,8 @@
+/.idea
+*.iml
+/target
+/core/target
+/gcs/target
+/var
+pom.xml.releaseBackup
+release.properties
