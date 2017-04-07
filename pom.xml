@@ -5,9 +5,9 @@
     <groupId>org.echocat.units4j</groupId>
     <artifactId>units4j</artifactId>
     <name>units4j</name>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <url>https://github.com/echocat/units4j</url>
-    <description>Library to sync easily and safe files to/from different kind of file systems.</description>
+    <description>Sets of units to use within Java.</description>
 
     <licenses>
         <license>
@@ -154,13 +154,6 @@
                             </manifest>
                         </archive>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>test-jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
