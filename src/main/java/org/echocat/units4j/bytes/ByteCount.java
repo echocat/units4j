@@ -7,16 +7,16 @@ import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Long.parseLong;
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
 import static org.echocat.units4j.bytes.ByteCountFormat.byteCountFormat;
-import static org.echocat.units4j.bytes.ByteUnit.BYTE;
+import static org.echocat.units4j.bytes.ByteUnit.B;
 import static org.echocat.units4j.bytes.ByteUnit.ROUNDING_MODE;
 
 @Immutable
@@ -27,7 +27,6 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
     public static final ByteCount ZERO = new ByteCount(BigInteger.ZERO);
 
     private static final String ZERO_STRING = "0";
-    private static final ByteUnit[] BYTE_UNITS = ByteUnit.values();
     private static final Pattern SPLIT_PATTERN = createSplitPattern();
 
     private static final ByteCountFormat DEFAULT_FORMAT = byteCountFormat()
@@ -45,7 +44,7 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
 
     @Nonnull
     public static ByteCount valueOf(@Nonnegative BigInteger byteCount, @Nonnull ByteUnit unit) {
-        return valueOf(unit.toBytes(byteCount));
+        return valueOf(unit.to(byteCount, B));
     }
 
     @Nonnull
@@ -78,16 +77,6 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
         byteCount = parseByteCount(formattedByteCount);
     }
 
-    @Nonnull
-    public BigInteger bigIntegerValue() {
-        return byteCount;
-    }
-
-    @Nonnull
-    public BigDecimal bigDecimalValue() {
-        return new BigDecimal(bigIntegerValue());
-    }
-
     /**
      * @throws IllegalArgumentException if this byteCount exceeds {@link Integer#MAX_VALUE}.
      */
@@ -109,23 +98,30 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
      */
     @Nonnegative
     public int toAllocatableByteCount() throws IllegalArgumentException {
-        if (byteCount.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+        if (bigIntegerValue().compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
             throw new IllegalArgumentException("This byteCount exceeds " + valueOf(Integer.MAX_VALUE) + " and could not be allocated.");
         }
-        return byteCount.intValue();
+        return bigIntegerValue().intValue();
     }
 
     @Nonnull
-    public BigDecimal in(@Nonnull ByteUnit byteUnit) {
-        return byteUnit.convert(new BigDecimal(byteCount), BYTE);
+    public BigInteger to(@Nonnull ByteUnit byteUnit) {
+        return byteUnit.from(bigIntegerValue(), B);
     }
 
     @Nonnull
-    public ByteUnit bestFittingUnit() {
-        ByteUnit result = BYTE;
-        for (int i = BYTE_UNITS.length - 1; i >= 0; i--) {
-            final ByteUnit unit = BYTE_UNITS[i];
-            if (unit.convert(byteCount, BYTE).compareTo(BigInteger.ZERO) > 0) {
+    public BigDecimal toDecimal(@Nonnull ByteUnit byteUnit) {
+        return byteUnit.from(bigDecimalValue(), B);
+    }
+
+    @Nonnull
+    public ByteUnit bestFittingUnitOf(@Nullable ByteUnit.Kind kind) {
+        ByteUnit result = B;
+        final List<ByteUnit> candidates = ByteUnit.valuesOf(kind);
+        final int size = candidates.size();
+        for (int i = size - 1; i >= 0; i--) {
+            final ByteUnit unit = candidates.get(i);
+            if (unit.from(bigIntegerValue(), B).compareTo(BigInteger.ZERO) > 0) {
                 result = unit;
                 break;
             }
@@ -169,7 +165,7 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
 
     @Nonnull
     public ByteCount add(@Nullable BigInteger value, @Nonnull ByteUnit unit) {
-        return value != null ? add(unit.toBytes(value)) : this;
+        return value != null ? add(unit.to(value, B)) : this;
     }
 
     @Nonnull
@@ -204,7 +200,7 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
 
     @Nonnull
     public ByteCount subtract(@Nullable BigInteger value, @Nonnull ByteUnit unit) {
-        return value != null ? subtract(unit.toBytes(value)) : this;
+        return value != null ? subtract(unit.to(value, B)) : this;
     }
 
     @Nonnull
@@ -290,36 +286,46 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
         final StringBuilder sb = new StringBuilder();
         sb.append("\\s*(?:");
         boolean first = true;
-        for (final ByteUnit byteUnit : BYTE_UNITS) {
+        for (final ByteUnit byteUnit : ByteUnit.values()) {
             if (first) {
                 first = false;
             } else {
                 sb.append("|");
             }
-            sb.append("(\\d+)\\s*(?:").append(byteUnit.display()).append('|').append(byteUnit.shortDisplay()).append(')');
+            sb.append("(\\d+)\\s*(?:").append(byteUnit.fullName()).append('|').append(byteUnit.name()).append(')');
         }
         sb.append(")\\s*");
         return compile(sb.toString(), CASE_INSENSITIVE);
     }
 
+    @Nonnull
+    public BigInteger bigIntegerValue() {
+        return byteCount;
+    }
+
+    @Nonnull
+    public BigDecimal bigDecimalValue() {
+        return new BigDecimal(bigIntegerValue());
+    }
+
     @Override
     public int intValue() {
-        return byteCount.intValue();
+        return bigIntegerValue().intValue();
     }
 
     @Override
     public long longValue() {
-        return byteCount.longValue();
+        return bigIntegerValue().longValue();
     }
 
     @Override
     public float floatValue() {
-        return byteCount.floatValue();
+        return bigIntegerValue().floatValue();
     }
 
     @Override
     public double doubleValue() {
-        return byteCount.doubleValue();
+        return bigIntegerValue().doubleValue();
     }
 
     @Nonnegative
@@ -348,10 +354,11 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
     protected static BigInteger parsePartValueOf(@Nonnull Matcher matcher) {
         requireNonNull(matcher);
         BigInteger partValue = null;
-        for (int i = 0; i < BYTE_UNITS.length; i++) {
+        final ByteUnit[] values = ByteUnit.values();
+        for (int i = 0; i < values.length; i++) {
             final String group = matcher.group(i + 1);
             if (group != null && !group.isEmpty()) {
-                partValue = BYTE_UNITS[i].toBytes(BigInteger.valueOf(parseLong(group)));
+                partValue = values[i].to(new BigInteger(group), B);
             }
         }
         if (partValue == null || partValue.compareTo(BigInteger.ZERO) < 0) {

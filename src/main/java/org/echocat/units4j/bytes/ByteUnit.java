@@ -2,358 +2,254 @@ package org.echocat.units4j.bytes;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Optional.*;
+import static org.echocat.units4j.bytes.ByteUnit.Kind.binary;
+import static org.echocat.units4j.bytes.ByteUnit.Kind.metric;
 
 public enum ByteUnit {
-    BYTE("B", "B") {
-        @Override public long toBytes(@Nonnegative long count) { return count; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return toBytes(count) / L_STEP; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return toKiloBytes(count) / L_STEP; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return toMegaBytes(count) / L_STEP; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return toGigaBytes(count) / L_STEP; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return toTeraBytes(count) / L_STEP; }
-        @Override public long toExaBytes(@Nonnegative long count) { return toPetaBytes(count) / L_STEP; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toBytes(count); }
+    B("byte", 0, binary, metric),
 
-        @Override public double toBytes(@Nonnegative double count) { return count; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return toBytes(count) / D_STEP; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return toKiloBytes(count) / D_STEP; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return toMegaBytes(count) / D_STEP; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return toGigaBytes(count) / D_STEP; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return toTeraBytes(count) / D_STEP; }
-        @Override public double toExaBytes(@Nonnegative double count) { return toPetaBytes(count) / D_STEP; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toBytes(count); }
+    KiB("kibibyte", 1, binary),
+    MiB("mebibyte", 2, binary),
+    GiB("gibibyte", 3, binary),
+    TiB("tebibyte", 4, binary),
+    PiB("pebibyte", 5, binary),
+    EiB("exbibyte", 6, binary),
 
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return toBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toBytes(count); }
+    kB("kilobyte", 1, metric),
+    MB("megabyte", 2, metric),
+    GB("gigabyte", 3, metric),
+    TB("terabyte", 4, metric),
+    PB("petabyte", 5, metric),
+    EB("exabyte", 6, metric);
 
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return toBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toBytes(count); }
-    },
-    KILO_BYTE("kB", "k") {
-        @Override public long toBytes(@Nonnegative long count) { return toKiloBytes(count) * L_STEP; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return count; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return toKiloBytes(count) / L_STEP; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return toMegaBytes(count) / L_STEP; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return toGigaBytes(count) / L_STEP; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return toTeraBytes(count) / L_STEP; }
-        @Override public long toExaBytes(@Nonnegative long count) { return toPetaBytes(count) / L_STEP; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toKiloBytes(count); }
-
-        @Override public double toBytes(@Nonnegative double count) { return toKiloBytes(count) * D_STEP; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return count; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return toKiloBytes(count) / D_STEP; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return toMegaBytes(count) / D_STEP; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return toGigaBytes(count) / D_STEP; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return toTeraBytes(count) / D_STEP; }
-        @Override public double toExaBytes(@Nonnegative double count) { return toPetaBytes(count) / D_STEP; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toKiloBytes(count); }
-
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toKiloBytes(count); }
-
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toKiloBytes(count); }
-    },
-    MEGA_BYTE("MB", "M") {
-        @Override public long toBytes(@Nonnegative long count) { return toKiloBytes(count) * L_STEP; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return toMegaBytes(count) * L_STEP; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return count; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return toMegaBytes(count) / L_STEP; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return toGigaBytes(count) / L_STEP; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return toTeraBytes(count) / L_STEP; }
-        @Override public long toExaBytes(@Nonnegative long count) { return toPetaBytes(count) / L_STEP; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toMegaBytes(count); }
-
-        @Override public double toBytes(@Nonnegative double count) { return toKiloBytes(count) * D_STEP; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return toMegaBytes(count) * D_STEP; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return count; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return toMegaBytes(count) / D_STEP; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return toGigaBytes(count) / D_STEP; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return toTeraBytes(count) / D_STEP; }
-        @Override public double toExaBytes(@Nonnegative double count) { return toPetaBytes(count) / D_STEP; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toMegaBytes(count); }
-
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toMegaBytes(count); }
-
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toMegaBytes(count); }
-    },
-    GIGA_BYTE("GB", "G") {
-        @Override public long toBytes(@Nonnegative long count) { return toKiloBytes(count) * L_STEP; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return toMegaBytes(count) * L_STEP; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return toGigaBytes(count) * L_STEP; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return count; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return toGigaBytes(count) / L_STEP; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return toTeraBytes(count) / L_STEP; }
-        @Override public long toExaBytes(@Nonnegative long count) { return toPetaBytes(count) / L_STEP; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toGigaBytes(count); }
-
-        @Override public double toBytes(@Nonnegative double count) { return toKiloBytes(count) * D_STEP; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return toMegaBytes(count) * D_STEP; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return toGigaBytes(count) * D_STEP; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return count; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return toGigaBytes(count) / D_STEP; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return toTeraBytes(count) / D_STEP; }
-        @Override public double toExaBytes(@Nonnegative double count) { return toPetaBytes(count) / D_STEP; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toGigaBytes(count); }
-
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toGigaBytes(count); }
-
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toGigaBytes(count); }
-    },
-    TERA_BYTE("TB", "T") {
-        @Override public long toBytes(@Nonnegative long count) { return toKiloBytes(count) * L_STEP; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return toMegaBytes(count) * L_STEP; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return toGigaBytes(count) * L_STEP; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return toTeraBytes(count) * L_STEP; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return count; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return toTeraBytes(count) / L_STEP; }
-        @Override public long toExaBytes(@Nonnegative long count) { return toPetaBytes(count) / L_STEP; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toTeraBytes(count); }
-
-        @Override public double toBytes(@Nonnegative double count) { return toKiloBytes(count) * D_STEP; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return toMegaBytes(count) * D_STEP; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return toGigaBytes(count) * D_STEP; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return toTeraBytes(count) * D_STEP; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return count; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return toTeraBytes(count) / D_STEP; }
-        @Override public double toExaBytes(@Nonnegative double count) { return toPetaBytes(count) / D_STEP; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toTeraBytes(count); }
-
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).divide(BI_STEP); }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toTeraBytes(count); }
-
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toTeraBytes(count); }
-    },
-    PETA_BYTE("PB", "P") {
-        @Override public long toBytes(@Nonnegative long count) { return toKiloBytes(count) * L_STEP; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return toMegaBytes(count) * L_STEP; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return toGigaBytes(count) * L_STEP; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return toTeraBytes(count) * L_STEP; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return toPetaBytes(count) * L_STEP; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return count; }
-        @Override public long toExaBytes(@Nonnegative long count) { return toPetaBytes(count) / L_STEP; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toPetaBytes(count); }
-
-        @Override public double toBytes(@Nonnegative double count) { return toKiloBytes(count) * D_STEP; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return toMegaBytes(count) * D_STEP; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return toGigaBytes(count) * D_STEP; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return toTeraBytes(count) * D_STEP; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return toPetaBytes(count) * D_STEP; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return count; }
-        @Override public double toExaBytes(@Nonnegative double count) { return toPetaBytes(count) / D_STEP; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toPetaBytes(count); }
-
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).divide(BI_STEP); }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toPetaBytes(count); }
-
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).divide(BD_STEP, ROUNDING_MODE); }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toPetaBytes(count); }
-    },
-    EXA_BYTE("EB", "E") {
-        @Override public long toBytes(@Nonnegative long count) { return toKiloBytes(count) * L_STEP; }
-        @Override public long toKiloBytes(@Nonnegative long count) { return toMegaBytes(count) * L_STEP; }
-        @Override public long toMegaBytes(@Nonnegative long count) { return toGigaBytes(count) * L_STEP; }
-        @Override public long toGigaBytes(@Nonnegative long count) { return toTeraBytes(count) * L_STEP; }
-        @Override public long toTeraBytes(@Nonnegative long count) { return toPetaBytes(count) * L_STEP; }
-        @Override public long toPetaBytes(@Nonnegative long count) { return toExaBytes(count) * L_STEP; }
-        @Override public long toExaBytes(@Nonnegative long count) { return count; }
-        @Override public long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toExaBytes(count); }
-
-        @Override public double toBytes(@Nonnegative double count) { return toKiloBytes(count) * D_STEP; }
-        @Override public double toKiloBytes(@Nonnegative double count) { return toMegaBytes(count) * D_STEP; }
-        @Override public double toMegaBytes(@Nonnegative double count) { return toGigaBytes(count) * D_STEP; }
-        @Override public double toGigaBytes(@Nonnegative double count) { return toTeraBytes(count) * D_STEP; }
-        @Override public double toTeraBytes(@Nonnegative double count) { return toPetaBytes(count) * D_STEP; }
-        @Override public double toPetaBytes(@Nonnegative double count) { return toExaBytes(count) * D_STEP; }
-        @Override public double toExaBytes(@Nonnegative double count) { return count; }
-        @Override public double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toExaBytes(count); }
-
-        @Override public BigInteger toBytes(@Nonnegative BigInteger count) { return toKiloBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toKiloBytes(@Nonnegative BigInteger count) { return toMegaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toMegaBytes(@Nonnegative BigInteger count) { return toGigaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toGigaBytes(@Nonnegative BigInteger count) { return toTeraBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toTeraBytes(@Nonnegative BigInteger count) { return toPetaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toPetaBytes(@Nonnegative BigInteger count) { return toExaBytes(count).multiply(BI_STEP); }
-        @Override public BigInteger toExaBytes(@Nonnegative BigInteger count) { return count; }
-        @Override public BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toExaBytes(count); }
-
-        @Override public BigDecimal toBytes(@Nonnegative BigDecimal count) { return toKiloBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toKiloBytes(@Nonnegative BigDecimal count) { return toMegaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toMegaBytes(@Nonnegative BigDecimal count) { return toGigaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toGigaBytes(@Nonnegative BigDecimal count) { return toTeraBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toTeraBytes(@Nonnegative BigDecimal count) { return toPetaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toPetaBytes(@Nonnegative BigDecimal count) { return toExaBytes(count).multiply(BD_STEP); }
-        @Override public BigDecimal toExaBytes(@Nonnegative BigDecimal count) { return count; }
-        @Override public BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit) { return sourceUnit.toExaBytes(count); }
-    };
-
-    static final long L_STEP = 1024L;
-    static final double D_STEP = 1024D;
-    static final BigInteger BI_STEP = BigInteger.valueOf(1024L);
-    static final BigDecimal BD_STEP = BigDecimal.valueOf(1024L, 0);
     static final int ROUNDING_MODE = ROUND_HALF_EVEN;
 
+    static final List<ByteUnit> BINARY_VALUES = selectAllValueOf(binary);
+    static final List<ByteUnit> METRIC_VALUES = selectAllValueOf(metric);
+
     @Nonnull
-    public static Optional<ByteUnit> byteUnitForDisplay(@Nonnull String display) {
-        for (final ByteUnit unit : values()) {
-            if (unit.display().equals(display) || (unit == BYTE && "".equals(display))) {
-                return of(unit);
+    public static List<ByteUnit> valuesOf(@Nullable Kind kind) {
+        if (kind == metric) {
+            return metricValues();
+        }
+        if (kind == binary) {
+            return binaryValues();
+        }
+        throw new IllegalArgumentException("Could not handle: " + kind);
+    }
+
+    @Nonnull
+    public static List<ByteUnit> binaryValues() {
+        return BINARY_VALUES;
+    }
+
+    @Nonnull
+    public static List<ByteUnit> metricValues() {
+        return METRIC_VALUES;
+    }
+
+    @Nonnull
+    public static Optional<ByteUnit> byteUnitForFullname(@Nonnull String name) {
+        return byteUnitFor(name, ByteUnit::fullName);
+    }
+
+    @Nonnull
+    public static Optional<ByteUnit> byteUnitForName(@Nonnull String name) {
+        return byteUnitFor(name, ByteUnit::name);
+    }
+
+    @Nonnull
+    static Optional<ByteUnit> byteUnitFor(@Nonnull String value, @Nonnull Function<ByteUnit, String> getCompareValue) {
+        for (final ByteUnit candidate : values()) {
+            final String compareValue = getCompareValue.apply(candidate);
+            if (compareValue.equalsIgnoreCase(value)) {
+                return of(candidate);
             }
+        }
+        if ("".endsWith(value)) {
+            return of(B);
         }
         return empty();
     }
 
     @Nonnull
-    public static Optional<ByteUnit> byteUnitForShortDisplay(@Nonnull String shortDisplay) {
-        for (final ByteUnit unit : values()) {
-            if (unit.shortDisplay().equals(shortDisplay) || (unit == BYTE && "".equals(shortDisplay))) {
-                return of(unit);
+    private final String fullName;
+    @Nonnull
+    private final Kind kind;
+    @Nonnegative
+    private final int exponent;
+    @Nonnegative
+    private final long longBase;
+    @Nonnegative
+    private final double doubleBase;
+    @Nonnull
+    @Nonnegative
+    private final BigInteger bigIntegerBase;
+    @Nonnull
+    @Nonnegative
+    private final BigDecimal bigDecimalBase;
+    @Nonnull
+    private final Optional<Kind> secondaryKind;
+
+    ByteUnit(@Nonnull String fullName, @Nonnegative int exponent, @Nonnull Kind kind) {
+        this(fullName, exponent, kind, null);
+    }
+
+    ByteUnit(@Nonnull String fullName, @Nonnegative int exponent, @Nonnull Kind kind, @Nullable Kind secondaryKind) {
+        this.fullName = fullName;
+        this.kind = kind;
+        this.exponent = exponent;
+        this.secondaryKind = ofNullable(secondaryKind);
+
+        bigIntegerBase = BigInteger.valueOf(kind == binary ? 1024 : 1000).pow(exponent);
+        bigDecimalBase = BigDecimal.valueOf(kind == binary ? 1024 : 1000, 0).pow(exponent);
+        longBase = bigIntegerBase.longValue();
+        doubleBase = bigDecimalBase.doubleValue();
+    }
+
+    @Nonnull
+    public ByteCount value(long value) {
+        return value(BigInteger.valueOf(value));
+    }
+
+    @Nonnull
+    public ByteCount value(double value) {
+        return value(BigDecimal.valueOf(value));
+    }
+
+    @Nonnull
+    public ByteCount value(@Nullable BigInteger value) {
+        final BigInteger bytes = (value != null ? value : BigInteger.ZERO).multiply(bigIntegerBase());
+        return new ByteCount(bytes);
+    }
+
+    @Nonnull
+    public ByteCount value(@Nullable BigDecimal value) {
+        final BigDecimal bytes = (value != null ? value : BigDecimal.ZERO).multiply(bigDecimalBase());
+        return new ByteCount(bytes.toBigInteger());
+    }
+
+    public long from(long value, @Nonnull ByteUnit sourceUnit) {
+        Objects.requireNonNull(sourceUnit);
+        return from(BigInteger.valueOf(value), sourceUnit).longValue();
+    }
+
+    public double from(double value, @Nonnull ByteUnit sourceUnit) {
+        Objects.requireNonNull(sourceUnit);
+        return from(BigDecimal.valueOf(value), sourceUnit).doubleValue();
+    }
+
+    @Nonnull
+    public BigInteger from(@Nullable BigInteger value, @Nonnull ByteUnit sourceUnit) {
+        Objects.requireNonNull(sourceUnit);
+        final BigInteger bytes = (value != null ? value : BigInteger.ZERO).multiply(sourceUnit.bigIntegerBase());
+        return bytes.divide(bigIntegerBase());
+    }
+
+    @Nonnull
+    public BigDecimal from(@Nullable BigDecimal value, @Nonnull ByteUnit sourceUnit) {
+        Objects.requireNonNull(sourceUnit);
+        final BigDecimal bytes = (value != null ? value : BigDecimal.ZERO).multiply(sourceUnit.bigDecimalBase());
+        return divide(bytes, sourceUnit, this);
+    }
+
+    public long to(long value, @Nonnull ByteUnit targetUnit) {
+        Objects.requireNonNull(targetUnit);
+        return to(BigInteger.valueOf(value), targetUnit).longValue();
+    }
+
+    public double to(double value, @Nonnull ByteUnit targetUnit) {
+        Objects.requireNonNull(targetUnit);
+        return to(BigDecimal.valueOf(value), targetUnit).doubleValue();
+    }
+
+    @Nonnull
+    public BigInteger to(@Nullable BigInteger value, @Nonnull ByteUnit targetUnit) {
+        Objects.requireNonNull(targetUnit);
+        final BigInteger bytes = (value != null ? value : BigInteger.ZERO).multiply(bigIntegerBase());
+        return bytes.divide(targetUnit.bigIntegerBase());
+    }
+
+    @Nonnull
+    public BigDecimal to(@Nullable BigDecimal value, @Nonnull ByteUnit targetUnit) {
+        Objects.requireNonNull(targetUnit);
+        final BigDecimal bytes = (value != null ? value : BigDecimal.ZERO).multiply(bigDecimalBase());
+        return divide(bytes, this, targetUnit);
+    }
+
+    @Nonnull
+    public String fullName() {
+        return fullName;
+    }
+
+    @Nonnull
+    public Kind kind() {
+        return kind;
+    }
+
+    @Nonnegative
+    public int exponent() {
+        return exponent;
+    }
+
+    @Nonnegative
+    public long longBase() {
+        return longBase;
+    }
+
+    @Nonnegative
+    public double doubleBase() {
+        return doubleBase;
+    }
+
+    @Nonnegative
+    @Nonnull
+    public BigInteger bigIntegerBase() {
+        return bigIntegerBase;
+    }
+
+    @Nonnegative
+    @Nonnull
+    public BigDecimal bigDecimalBase() {
+        return bigDecimalBase;
+    }
+
+
+    public enum Kind {
+        metric,
+        binary
+    }
+
+    @Nonnull
+    static List<ByteUnit> selectAllValueOf(@Nonnull Kind kind) {
+        final List<ByteUnit> result = new ArrayList<>();
+        for (final ByteUnit candidate : values()) {
+            if (candidate.kind == kind || candidate.secondaryKind.orElse(null) == kind) {
+                result.add(candidate);
             }
         }
-        return empty();
-    }
-
-    private final String display;
-    private final String shortDisplay;
-
-    ByteUnit(@Nonnull String display, @Nonnull String shortDisplay) {
-        this.display = display;
-        this.shortDisplay = shortDisplay;
-    }
-
-    @Nonnegative public abstract long convert(@Nonnegative long count, @Nonnull ByteUnit sourceUnit);
-    @Nonnegative public abstract double convert(@Nonnegative double count, @Nonnull ByteUnit sourceUnit);
-    @Nonnegative public abstract BigInteger convert(@Nonnegative BigInteger count, @Nonnull ByteUnit sourceUnit);
-    @Nonnegative public abstract BigDecimal convert(@Nonnegative BigDecimal count, @Nonnull ByteUnit sourceUnit);
-
-    @Nonnegative public abstract long toBytes(@Nonnegative long count);
-    @Nonnegative public abstract long toKiloBytes(@Nonnegative long count);
-    @Nonnegative public abstract long toMegaBytes(@Nonnegative long count);
-    @Nonnegative public abstract long toGigaBytes(@Nonnegative long count);
-    @Nonnegative public abstract long toTeraBytes(@Nonnegative long count);
-    @Nonnegative public abstract long toPetaBytes(@Nonnegative long count);
-    @Nonnegative public abstract long toExaBytes(@Nonnegative long count);
-
-    @Nonnegative public abstract double toBytes(@Nonnegative double count);
-    @Nonnegative public abstract double toKiloBytes(@Nonnegative double count);
-    @Nonnegative public abstract double toMegaBytes(@Nonnegative double count);
-    @Nonnegative public abstract double toGigaBytes(@Nonnegative double count);
-    @Nonnegative public abstract double toTeraBytes(@Nonnegative double count);
-    @Nonnegative public abstract double toPetaBytes(@Nonnegative double count);
-    @Nonnegative public abstract double toExaBytes(@Nonnegative double count);
-
-    @Nonnegative public abstract BigInteger toBytes(@Nonnegative BigInteger count);
-    @Nonnegative public abstract BigInteger toKiloBytes(@Nonnegative BigInteger count);
-    @Nonnegative public abstract BigInteger toMegaBytes(@Nonnegative BigInteger count);
-    @Nonnegative public abstract BigInteger toGigaBytes(@Nonnegative BigInteger count);
-    @Nonnegative public abstract BigInteger toTeraBytes(@Nonnegative BigInteger count);
-    @Nonnegative public abstract BigInteger toPetaBytes(@Nonnegative BigInteger count);
-    @Nonnegative public abstract BigInteger toExaBytes(@Nonnegative BigInteger count);
-
-    @Nonnegative public abstract BigDecimal toBytes(@Nonnegative BigDecimal count);
-    @Nonnegative public abstract BigDecimal toKiloBytes(@Nonnegative BigDecimal count);
-    @Nonnegative public abstract BigDecimal toMegaBytes(@Nonnegative BigDecimal count);
-    @Nonnegative public abstract BigDecimal toGigaBytes(@Nonnegative BigDecimal count);
-    @Nonnegative public abstract BigDecimal toTeraBytes(@Nonnegative BigDecimal count);
-    @Nonnegative public abstract BigDecimal toPetaBytes(@Nonnegative BigDecimal count);
-    @Nonnegative public abstract BigDecimal toExaBytes(@Nonnegative BigDecimal count);
-
-    @Nonnull
-    public String display() {
-        return display;
+        return unmodifiableList(result);
     }
 
     @Nonnull
-    public String shortDisplay() {
-        return shortDisplay;
+    BigDecimal divide(@Nonnull BigDecimal input, @Nonnull ByteUnit source, @Nonnull ByteUnit target) {
+        final int diffExponent = target.exponent() - source.exponent();
+        if (diffExponent > 0) {
+            return input.divide(bigDecimalBase(), (diffExponent + 1) * 3, ROUNDING_MODE);
+        }
+        return input.divide(bigDecimalBase(), ROUNDING_MODE);
     }
 
-    @Override
-    public String toString() {
-        return display;
-    }
 }
