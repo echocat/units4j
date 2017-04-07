@@ -35,6 +35,20 @@ public class ByteCountFormatUnitTest {
     }
 
     @Test
+    public void binaryUseCasesWithPrecision() throws Exception {
+        final ByteCountFormat format = byteCountFormat()
+            .withMaximumFractionDigits(2)
+            .ofByteUnitKind(binary)
+            .build();
+
+        assertThat(format.format(valueOf(EiB.to(5, B) + MiB.to(100, B))), is("5EiB"));
+        assertThat(format.format(valueOf(PiB.to(333, B) + GiB.to(333, B) + TiB.to(333, B) + 1)), is("333.33PiB"));
+        assertThat(format.format(valueOf(PiB.to(666, B) + GiB.to(666, B) + TiB.to(666, B) + 1)), is("666.65PiB"));
+        assertThat(format.format(valueOf(1)), is("1B"));
+        assertThat(format.format(valueOf(0)), is("0"));
+    }
+
+    @Test
     public void metricUseCases() throws Exception {
         final ByteCountFormat format = byteCountFormat()
             .ofByteUnitKind(metric)

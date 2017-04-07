@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Locale.US;
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
@@ -30,6 +31,7 @@ public class ByteCount extends Number implements Comparable<ByteCount> {
     private static final Pattern SPLIT_PATTERN = createSplitPattern();
 
     private static final ByteCountFormat DEFAULT_FORMAT = byteCountFormat()
+        .withLocale(US)
         .build();
 
     @Nullable

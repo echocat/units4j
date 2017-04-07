@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -29,8 +28,6 @@ public class ByteCountFormat {
         return new Builder();
     }
 
-    public static final int DEFAULT_PRECISION = 2;
-
     @Nonnull
     private final Optional<ByteUnit> byteUnit;
     @Nonnull
@@ -42,35 +39,54 @@ public class ByteCountFormat {
     @Nonnull
     private final NameFormat nameFormat;
     @Nonnegative
-    private final int precision;
+    @Nonnull
+    private final Optional<Integer> maximumFractionDigits;
+    @Nonnegative
+    @Nonnull
+    private final Optional<Integer> minimumFractionDigits;
 
     protected ByteCountFormat(
         @Nonnull Optional<ByteUnit> byteUnit,
         @Nonnull Kind byteUnitKind,
         @Nonnull Locale locale,
         @Nonnull NameFormat nameFormat,
-        @Nonnegative int precision
+        @Nonnegative @Nonnull Optional<Integer> maximumFractionDigits,
+        @Nonnegative @Nonnull Optional<Integer> minimumFractionDigits
     ) {
         this.byteUnit = byteUnit;
         this.byteUnitKind = byteUnitKind;
         this.locale = locale;
         this.nameFormat = nameFormat;
-        this.precision = precision;
-        this.numberFormat = DecimalFormat.getNumberInstance(locale);
-        this.numberFormat.setMaximumFractionDigits(precision);
+        this.maximumFractionDigits = maximumFractionDigits;
+        this.minimumFractionDigits = minimumFractionDigits;
+        this.numberFormat = NumberFormat.getNumberInstance(locale);
+        this.numberFormat.setMaximumFractionDigits(maximumFractionDigits.orElse(0));
+        this.numberFormat.setMinimumFractionDigits(minimumFractionDigits.orElse(0));
     }
 
     @Nonnull
     public String format(@Nonnull ByteCount value) {
-        return byteUnit.
-            map(candidate -> formatWithUnit(value, candidate))
-            .orElseGet(() -> formatWithoutUnit(value));
+        if (ByteCount.ZERO.equals(value)) {
+            return "0";
+        }
+        return byteUnit()
+            .map(candidate -> formatWithUnit(value, candidate))
+            .orElseGet(() -> maximumFractionDigits()
+                .map(ignored -> formatWithBestFittingUnit(value))
+                .orElseGet(() -> formatWithoutUnit(value))
+            );
     }
 
     @Nonnull
     protected String formatWithUnit(@Nonnull ByteCount value, @Nonnull ByteUnit unit) {
         final BigDecimal valueAsDecimal = value.toDecimal(unit);
         return numberFormat().format(valueAsDecimal) + nameFormat().format(unit);
+    }
+
+    @Nonnull
+    protected String formatWithBestFittingUnit(@Nonnull ByteCount value) {
+        final ByteUnit unit = value.bestFittingUnitOf(byteUnitKind());
+        return formatWithUnit(value, unit);
     }
 
     @Nonnull
@@ -91,7 +107,7 @@ public class ByteCountFormat {
                 if (sb.length() > 0) {
                     sb.append(' ');
                 }
-                sb.append(value).append(nameFormat().format(unit));
+                sb.append(numberFormat().format(value)).append(nameFormat().format(unit));
                 rest = rest.subtract(unit.to(value, B));
             }
         }
@@ -127,8 +143,16 @@ public class ByteCountFormat {
         return numberFormat;
     }
 
-    public int precision() {
-        return precision;
+    @Nonnull
+    @Nonnegative
+    public Optional<Integer> maximumFractionDigits() {
+        return maximumFractionDigits;
+    }
+
+    @Nonnull
+    @Nonnegative
+    public Optional<Integer> minimumFractionDigits() {
+        return minimumFractionDigits;
     }
 
     public static class Builder {
@@ -142,7 +166,9 @@ public class ByteCountFormat {
         @Nonnull
         private Optional<Locale> locale = empty();
         @Nonnull
-        private Optional<Integer> precision = empty();
+        private Optional<Integer> maximumFractionDigits = empty();
+        @Nonnull
+        private Optional<Integer> minimumFractionDigits = empty();
 
         @Nonnull
         public Builder ofByteUnit(@Nullable ByteUnit byteUnit) {
@@ -169,11 +195,20 @@ public class ByteCountFormat {
         }
 
         @Nonnull
-        public Builder setPrecision(@Nullable @Nonnegative Integer precision) {
-            if (precision != null && precision < 0) {
-                throw new IllegalArgumentException("Given precision is negative: " + precision);
+        public Builder withMaximumFractionDigits(@Nullable @Nonnegative Integer maximumFractionDigits) {
+            if (maximumFractionDigits != null && maximumFractionDigits < 0) {
+                throw new IllegalArgumentException("Given maximumFractionDigits value is negative: " + maximumFractionDigits);
             }
-            this.precision = ofNullable(precision);
+            this.maximumFractionDigits = ofNullable(maximumFractionDigits);
+            return this;
+        }
+
+        @Nonnull
+        public Builder withMinimumFractionDigits(@Nullable @Nonnegative Integer minimumFractionDigits) {
+            if (minimumFractionDigits != null && minimumFractionDigits < 0) {
+                throw new IllegalArgumentException("Given minimumFractionDigits value is negative: " + minimumFractionDigits);
+            }
+            this.minimumFractionDigits = ofNullable(minimumFractionDigits);
             return this;
         }
 
@@ -187,7 +222,8 @@ public class ByteCountFormat {
                 byteUnitKind.orElse(binary),
                 locale.orElseGet(Locale::getDefault),
                 nameFormat.orElse(briefly),
-                precision.orElse(DEFAULT_PRECISION)
+                maximumFractionDigits,
+                minimumFractionDigits
             );
         }
 

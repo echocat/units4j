@@ -5,13 +5,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static java.math.BigDecimal.ROUND_HALF_EVEN;
+import static java.math.RoundingMode.HALF_EVEN;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Optional.*;
 import static org.echocat.units4j.bytes.ByteUnit.Kind.binary;
@@ -34,7 +35,7 @@ public enum ByteUnit {
     PB("petabyte", 5, metric),
     EB("exabyte", 6, metric);
 
-    static final int ROUNDING_MODE = ROUND_HALF_EVEN;
+    static final RoundingMode ROUNDING_MODE = HALF_EVEN;
 
     static final List<ByteUnit> BINARY_VALUES = selectAllValueOf(binary);
     static final List<ByteUnit> METRIC_VALUES = selectAllValueOf(metric);
