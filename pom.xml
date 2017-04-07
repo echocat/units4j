@@ -5,7 +5,7 @@
     <groupId>org.echocat.units4j</groupId>
     <artifactId>units4j</artifactId>
     <name>units4j</name>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <url>https://github.com/echocat/units4j</url>
     <description>Sets of units to use within Java.</description>
 
@@ -240,7 +240,7 @@
         <connection>scm:git://github.com/echocat/units4j.git</connection>
         <developerConnection>scm:git:git@github.com:echocat/units4j.git</developerConnection>
         <url>https://github.com/echocat/units4j</url>
-        <tag>HEAD</tag>
+        <tag>version-0.1</tag>
     </scm>
 
 </project>
