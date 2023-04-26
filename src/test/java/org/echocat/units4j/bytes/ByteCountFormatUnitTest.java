@@ -8,12 +8,14 @@ import static org.echocat.units4j.bytes.ByteUnit.*;
 import static org.echocat.units4j.bytes.ByteUnit.Kind.binary;
 import static org.echocat.units4j.bytes.ByteUnit.Kind.metric;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.Locale;
 
 public class ByteCountFormatUnitTest {
 
     @Test
-    public void allUnitsFormat() throws Exception {
+    public void allUnitsFormat() {
         for (final ByteUnit unit : values()) {
             final ByteCountFormat format = byteCountFormat()
                 .ofByteUnitKind(unit.kind())
@@ -23,7 +25,7 @@ public class ByteCountFormatUnitTest {
     }
 
     @Test
-    public void binaryUseCases() throws Exception {
+    public void binaryUseCases() {
         final ByteCountFormat format = byteCountFormat()
             .ofByteUnitKind(binary)
             .build();
@@ -35,9 +37,10 @@ public class ByteCountFormatUnitTest {
     }
 
     @Test
-    public void binaryUseCasesWithPrecision() throws Exception {
+    public void binaryUseCasesWithPrecision() {
         final ByteCountFormat format = byteCountFormat()
             .withMaximumFractionDigits(2)
+            .withLocale(Locale.US)
             .ofByteUnitKind(binary)
             .build();
 
@@ -49,8 +52,9 @@ public class ByteCountFormatUnitTest {
     }
 
     @Test
-    public void metricUseCases() throws Exception {
+    public void metricUseCases() {
         final ByteCountFormat format = byteCountFormat()
+            .withLocale(Locale.US)
             .ofByteUnitKind(metric)
             .build();
 

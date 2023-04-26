@@ -32,7 +32,6 @@
         <versions.java>1.8</versions.java>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssX</maven.build.timestamp.format>
-        <project.baseName>sync4j</project.baseName>
         <project.build.timestamp>${maven.build.timestamp}</project.build.timestamp>
     </properties>
 
@@ -48,7 +47,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -60,7 +59,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.7.18</version>
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -79,6 +78,7 @@
                 <configuration>
                     <excludes>
                         <exclude>javax/annotation/**/*</exclude>
+                        <exclude>java/**/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -124,7 +124,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.9</version>
+                    <version>0.8.10</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -222,6 +222,31 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>maven-central</id>
+            <distributionManagement>
+                <repository>
+                    <id>oss-sonatype-releases</id>
+                    <url>dav:https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                </repository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.13</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>oss-sonatype-releases</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <issueManagement>
@@ -230,11 +255,32 @@
     </issueManagement>
 
     <distributionManagement>
+        <snapshotRepository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/echocat/units4j</url>
+        </snapshotRepository>
         <repository>
-            <id>oss-sonartype-releases</id>
-            <url>dav:https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/echocat/units4j</url>
         </repository>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>echocat</id>
+            <url>https://packages.echocat.org/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <scm>
         <connection>scm:git://github.com/echocat/units4j.git</connection>

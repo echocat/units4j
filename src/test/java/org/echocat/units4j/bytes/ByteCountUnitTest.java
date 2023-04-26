@@ -1,19 +1,19 @@
 package org.echocat.units4j.bytes;
 
-import org.junit.Test;
-
-import java.math.BigInteger;
-
 import static org.echocat.units4j.bytes.ByteCount.valueOf;
 import static org.echocat.units4j.bytes.ByteUnit.*;
 import static org.echocat.unittest.utils.matchers.ThrowsException.throwsException;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.math.BigInteger;
+
+import org.junit.Test;
 
 public class ByteCountUnitTest {
 
     @Test
-    public void differentUnits() throws Exception {
+    public void differentUnits() {
         for (final ByteUnit unit : values()) {
             assertThat(valueOf("7" + unit.name()), is(valueOf(7, unit)));
             assertThat(valueOf("7" + unit.name().toLowerCase()), is(valueOf(7, unit)));
@@ -30,7 +30,7 @@ public class ByteCountUnitTest {
     }
 
     @Test
-    public void useCases() throws Exception {
+    public void useCases() {
         assertThat(valueOf("66mib 1024kib 2097152b").bigIntegerValue(), is(MiB.to(BigInteger.valueOf(69), B)));
         assertThat(valueOf("66mib 1024kib 2097152b"), is(valueOf(69, MiB)));
         assertThat(valueOf("0b").bigIntegerValue(), is(MiB.to(BigInteger.ZERO, B)));
